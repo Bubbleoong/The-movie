@@ -23,13 +23,16 @@ function runtimeText(detail: TitleDetail) {
 
 export function DetailCard({ detail }: Props) {
   const [posterFailed, setPosterFailed] = useState(false);
-  const [backdropFailed, setBackdropFailed] = useState(false);
+  // const [backdropFailed, setBackdropFailed] = useState(false);
   const [failedCast, setFailedCast] = useState<Record<number, boolean>>({});
   const year = detail.date?.slice(0, 4) || "ไม่ระบุปี";
   const typeLabel = detail.mediaType === "movie" ? "ภาพยนตร์" : "ซีรีส์";
-  const backdrop = detail.backdropPath && !backdropFailed
-    ? imageUrl(detail.backdropPath, "w1280")
-    : null;
+  // const backdrop = detail.backdropPath && !backdropFailed
+  //   ? imageUrl(detail.backdropPath, "w1280")
+  //   : null;
+  const backdrop = detail.backdropPath
+  ? imageUrl(detail.backdropPath, "w1280")
+  : null;
   const trailer = detail.trailer;
   const trailerEmbed =
     trailer?.site === "YouTube"
