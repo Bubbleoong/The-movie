@@ -10,6 +10,7 @@
     "build": "tsc && tsc -p tsconfig.server.json && vite build",
     "preview": "vite preview",
     "start": "node dist-server/server/index.js",
+    "start:api": "node dist-server/api/index.js",
     "test": "node scripts/automated-qa-test.mjs"
   },
   "devDependencies": {

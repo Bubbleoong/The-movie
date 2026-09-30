@@ -80,14 +80,19 @@ pnpm start
 
 โปรเจกต์นี้รวม Express Backend และ Single-Page Application (SPA) ไว้ด้วยกัน สามารถนำไป deploy ได้บนโฮสต์หลากหลายประเภทที่รองรับ Node.js (v20+):
 
-1. **PaaS (Render, Railway, Fly.io, Heroku):**
+1. **Vercel (Serverless):**
+   - โครงสร้างรองรับ Vercel แล้ว: `server/app.ts` สร้าง Express app, `server/index.ts` ใช้รัน local/Node server และ `api/index.ts` เป็น entry point สำหรับ Vercel Function
+   - Import repo ที่ vercel.com/new — Vercel อ่าน `vercel.json` (build ด้วย `pnpm build`, เสิร์ฟ SPA จาก `dist/`, ส่ง `/api/*` ไปที่ Function)
+   - ตั้ง Environment Variables ในโปรเจกต์: `DATABASE_URL`, `DATABASE_CA_CERT` (เนื้อหาของ `supabase/ca.crt`), `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `NODE_ENV=production`, `APP_ORIGIN=https://your-domain.vercel.app`
+   - รัน local แบบเหมือน production ด้วย `vercel dev` หรือรัน Node server ปกติด้วย `pnpm build && pnpm start`
+2. **PaaS (Render, Railway, Fly.io, Heroku):**
    - **Build Command:** `pnpm install && pnpm build`
    - **Start Command:** `pnpm start`
    - **Environment Variables:** ตั้งค่า `DATABASE_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `NODE_ENV=production`, `APP_ORIGIN=https://your-domain.com`
 2. **VPS (Ubuntu / Debian + PM2 + Nginx):**
    - รัน `pnpm build` แล้วใช้ `pm2 start dist-server/server/index.js --name "movie-web"`
    - ตั้งค่า Nginx Reverse Proxy ไปยัง `http://127.0.0.1:3001` พร้อมติดตั้ง SSL (Let's Encrypt / Certbot)
-3. **Docker Container:**
+4. **Docker Container:**
    - สามารถสร้าง multi-stage Dockerfile รัน `pnpm build` และ `node dist-server/server/index.js`
 
 
@@ -100,6 +105,10 @@ pnpm start
 | `src/component/` | Navbar, TitleCard, TitleShelf, TitleGrid และส่วนประกอบที่ใช้ซ้ำ |
 | `src/api/` | Axios client และฟังก์ชันเรียก TMDB API ผ่าน server |
 | `src/types/` | ชนิดข้อมูลตาม architecture contract |
+| `server/app.ts` | สร้าง Express app ที่ใช้ร่วมกันทั้ง local และ serverless |
+| `server/index.ts` | start server บน local/Node host เสิร์ฟ `dist/` และ SPA fallback |
+| `api/index.ts` | entry point สำหรับ Vercel Function |
+| `vercel.json` | ตั้งค่า build, routing `/api/*` และ SPA fallback บน Vercel |
 | `server/routes/` | HTTP routes สำหรับ health, titles, auth, favorites และ reviews |
 | `server/services/` | ติดต่อ TMDB, Supabase Auth, database pool และอ่าน Vault |
 | `server/middleware/` | จัดรูปแบบ API error |
