@@ -1,14 +1,5 @@
 import type { ErrorRequestHandler } from 'express'
-
-export class ApiError extends Error {
-  constructor(
-    public readonly status: number,
-    public readonly code: string,
-    message: string,
-  ) {
-    super(message)
-  }
-}
+import { ApiError } from '../errors/ApiError.js'
 
 export const apiErrorHandler: ErrorRequestHandler = (error: unknown, _request, response, _next) => {
   if (error instanceof ApiError) {

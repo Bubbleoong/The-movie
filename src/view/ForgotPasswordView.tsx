@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import type { SubmitEvent } from 'react'
 import { Link } from 'react-router'
 import { requestPasswordReset } from '../api/auth'
 
@@ -9,7 +9,7 @@ export function ForgotPasswordView() {
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setPending(true)
     setError('')

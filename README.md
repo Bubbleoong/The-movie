@@ -32,7 +32,7 @@ pnpm install
 pnpm dev
 ```
 
-คำสั่งนี้เปิดทั้ง Vite และ API server ในเครื่อง. เปิด `http://localhost:5173`; Vite ส่งคำขอ `/api/*` ไป server ที่ `http://localhost:3001`. หากต้องการแยกรันสอง terminal ใช้ `pnpm dev:web` กับ `pnpm dev:server`. ทดสอบ server ได้ที่ `http://localhost:3001/api/health`. คำสั่ง `pnpm test` ยังใช้ไม่ได้จนกว่าจะเพิ่มไฟล์ทดสอบที่อ้างใน `package.json`.
+คำสั่งนี้เปิดทั้ง Vite และ API server ในเครื่อง. เปิด `http://localhost:5173`; Vite ส่งคำขอ `/api/*` ไป server ที่ `http://localhost:3001`. หากต้องการแยกรันสอง terminal ใช้ `pnpm dev:web` กับ `pnpm dev:server`. ทดสอบ server ได้ที่ `http://localhost:3001/api/health`. รัน `pnpm build` แล้ว `pnpm test` เพื่อตรวจ backend 21 เคส โดยจำลอง Supabase และฐานข้อมูล ไม่ส่งเมลหรือแก้ข้อมูลจริง.
 
 Server อ่าน TMDB API key จาก Supabase Vault ชื่อ `tmdb_api_key`. `.env` ต้องมี `DATABASE_URL`, `VITE_SUPABASE_URL` และ `VITE_SUPABASE_PUBLISHABLE_KEY`; ไม่มี `API_KEY` แล้ว. การเชื่อม PostgreSQL ตรวจ TLS ด้วย CA ที่ `supabase/ca.crt`. อย่าส่ง `DATABASE_URL` เข้า frontend หรือ commit `.env`. ใช้ endpoints:
 
@@ -55,15 +55,15 @@ API ส่งรูปแบบ `{ data, page, totalPages, hasMore }` สำห�
 
 ### ตั้งค่าอีเมลลืมรหัสผ่าน
 
-ใน Supabase Dashboard → Authentication → URL Configuration ตั้ง **Site URL** เป็น URL ของเว็บจริง และเพิ่ม `http://localhost:5173/reset-password` กับ URL production ของหน้า `/reset-password` ใน Redirect URLs. ฝั่ง server ส่ง `redirect_to` เป็น URL ของหน้า reset ตาม Origin ของเว็บที่เรียกใช้งาน จึงใช้ทั้ง dev และ production ได้. **แพ็กเกจ Free ใช้อีเมลเทมเพลตเริ่มต้นได้เลย**; หน้า Reset รองรับ session token ที่ Supabase ส่งกลับใน URL fragment และลบ fragment ออกจากแถบ URL ทันที. Browser ส่ง access token ให้ server เฉพาะคำขอตั้งรหัสผ่านใหม่; server ติดต่อ Supabase Auth และออกจาก recovery session หลังสำเร็จ. ไม่เก็บ token ใน localStorage หรือ cookie ของ browser.
+ใน Supabase Dashboard → Authentication → URL Configuration ตั้ง **Site URL** เป็น URL ของเว็บจริง และเพิ่ม `http://localhost:5173/reset-password` กับ URL production ของหน้า `/reset-password` ใน Redirect URLs. ฝั่ง server ใช้ `APP_ORIGIN` เป็น URL หลักของลิงก์ reset; หากไม่ได้ตั้งค่าจะใช้ Origin ของคำขอ. บน Vercel ตั้ง `APP_ORIGIN=https://your-domain.vercel.app` และเพิ่ม `https://your-domain.vercel.app/reset-password` ใน Supabase Redirect URLs เพื่อป้องกันการกลับไป Site URL เดิม เช่น localhost:3000. หากใช้เทมเพลตเริ่มต้นที่มี `{{ .ConfirmationURL }}`; หน้า Reset รองรับ session token ที่ Supabase ส่งกลับใน URL fragment และลบ fragment ออกจากแถบ URL ทันที. Browser ส่ง access token ให้ server เฉพาะคำขอตั้งรหัสผ่านใหม่; server ติดต่อ Supabase Auth และออกจาก recovery session หลังสำเร็จ. ไม่เก็บ token ใน localStorage หรือ cookie ของ browser.
 
-หากใช้ Custom SMTP หรือแพ็กเกจที่แก้ Email Template ได้ สามารถเปลี่ยนลิงก์ของปุ่ม **Reset Password** เป็นรูปแบบ `token_hash` เพื่อให้ browser ไม่ได้รับ session token:
+เปลี่ยน Email Template → Reset Password เป็นลิงก์ `token_hash` ด้านล่างเพื่อไม่ส่ง access/refresh token ผ่าน URL. token_hash ยังคงเป็นข้อมูลลับแบบใช้ครั้งเดียวในลิงก์อีเมล; หน้าเว็บลบ query ออกจากแถบ URL ทันทีและส่ง token_hash ใน POST body ให้ server ตรวจสอบกับ Supabase:
 
 ```html
 <a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&amp;type=recovery">ตั้งรหัสผ่านใหม่</a>
 ```
 
-หน้า `/forgot-password` เรียก server เพื่อให้ Supabase ส่งอีเมล. หลังตั้งรหัสใหม่ ผู้ใช้เข้าสู่ระบบอีกครั้ง. ต้องทดสอบด้วยอีเมลจริง; บริการส่งอีเมลเริ่มต้นของ Supabase อาจมีข้อจำกัดการส่งและควรตั้ง SMTP ก่อนใช้งานจริง. อย่าส่ง URL ที่มี token ให้ผู้อื่นหรือวางใน issue/chat.
+หน้า `/forgot-password` เรียก server เพื่อให้ Supabase ส่งอีเมล. หลังตั้งรหัสใหม่ เว็บกลับไป `/login` อัตโนมัติเพื่อให้ผู้ใช้เข้าสู่ระบบอีกครั้ง. หลังแก้ URL หรือเทมเพลต ต้องขออีเมล reset ใหม่. ต้องทดสอบด้วยอีเมลจริง; บริการส่งอีเมลเริ่มต้นของ Supabase อาจมีข้อจำกัดการส่งและควรตั้ง SMTP ก่อนใช้งานจริง. อย่าส่ง URL ที่มี token ให้ผู้อื่นหรือวางใน issue/chat.
 
 ## Build และรันแบบ production
 
@@ -107,8 +107,13 @@ pnpm start
 | `server/index.ts` | start server บน local/Node host เสิร์ฟ `dist/` และ SPA fallback |
 | `api/index.ts` | entry point สำหรับ Vercel Function |
 | `vercel.json` | ตั้งค่า build, routing `/api/*` และ SPA fallback บน Vercel |
-| `server/routes/` | HTTP routes สำหรับ health, titles, auth, favorites และ reviews |
-| `server/services/` | ติดต่อ TMDB, Supabase Auth, database pool และอ่าน Vault |
-| `server/middleware/` | จัดรูปแบบ API error |
+| `server/routes/` | จับคู่ HTTP method และ URL กับ controller |
+| `server/controllers/` | รับ request ตรวจข้อมูล เรียก service และส่ง response |
+| `server/services/` | เงื่อนไขการทำงาน ติดต่อ TMDB และแปลงข้อมูลสำหรับ API |
+| `server/repositories/` | SQL, Supabase Auth/REST และอ่าน Vault |
+| `server/database/` | PostgreSQL pool และ TLS configuration |
+| `server/middleware/` | Session, same-origin checks และ error response |
+| `server/errors/` | ApiError ที่มี status, code และ message |
+| `server/utils/` | asyncHandler ส่งข้อผิดพลาดไป error middleware |
 
 ไฟล์ `.env` ถูก ignore. `DATABASE_URL` เป็นค่า server-only; ตัวแปร `VITE_` จะอยู่ใน frontend bundle จึงใช้ได้เฉพาะ Supabase URL และ publishable key ที่ตั้งใจให้เป็นสาธารณะ. DB-01 ใช้ migration ใน `supabase/migrations/` และมีผลการตรวจใน `supabase/DB-01_VERIFICATION.md`

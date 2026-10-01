@@ -1,4 +1,4 @@
-import { ApiError } from '../middleware/apiError.js'
+import { ApiError } from '../errors/ApiError.js'
 import { getTmdbApiKey } from './tmdbKey.js'
 
 const baseUrl = 'https://api.themoviedb.org/3/'

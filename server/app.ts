@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
-import { apiErrorHandler } from './middleware/apiError.js'
+import { apiErrorHandler } from './middleware/errorMiddleware.js'
 import { healthRouter } from './routes/health.js'
 import { authRouter } from './routes/auth.js'
 import { titlesRouter } from './routes/titles.js'

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { login, signup } from "../api/auth";
 
@@ -16,7 +16,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     requested.startsWith("/") && !requested.startsWith("//") ? requested : "/";
   const other = mode === "login" ? "/signup" : "/login";
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setError("");

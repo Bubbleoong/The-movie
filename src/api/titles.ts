@@ -1,12 +1,5 @@
 import { apiClient } from './client'
-import type { MediaType, TitleDetail, TitleSummary } from '../types/media'
-
-export type TitlePageResponse = {
-  data: TitleSummary[]
-  page: number
-  totalPages: number
-  hasMore: boolean
-}
+import type { MediaType, TitleDetail, TitlePageResponse } from '../types/media'
 
 export async function getPopularTitles(mediaType: MediaType, page = 1): Promise<TitlePageResponse> {
   const response = await apiClient.get<TitlePageResponse>('/titles/popular', { params: { mediaType, page } })

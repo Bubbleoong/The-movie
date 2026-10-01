@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import {
   Link,
   NavLink,
@@ -51,7 +51,7 @@ export function Navbar() {
     );
   }, [location.pathname, location.search]);
 
-  function submitSearch(event: FormEvent<HTMLFormElement>) {
+  function submitSearch(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = query.trim();
     navigate(value ? `/search?q=${encodeURIComponent(value)}` : "/search");

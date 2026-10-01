@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import { ApiError } from './apiError.js'
+import { ApiError } from '../errors/ApiError.js'
 import { getUser, refreshSession } from '../services/supabaseAuth.js'
 import type { Session } from '../services/supabaseAuth.js'
 

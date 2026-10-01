@@ -1,5 +1,5 @@
-import type { MediaType, PersonCredit, TitleDetail, TitleSummary, Trailer } from '../../src/types/media.js'
-import { ApiError } from '../middleware/apiError.js'
+import type { MediaType, PersonCredit, TitleDetail, TitlePageResponse, TitleSummary, Trailer } from '../../src/types/media.js'
+import { ApiError } from '../errors/ApiError.js'
 import { tmdbGet } from './tmdb.js'
 
 type TmdbTitle = {
@@ -30,8 +30,6 @@ type TmdbDetail = TmdbTitle & {
   videos?: { results?: TmdbVideo[] }
 }
 
-export type TitlePage = { data: TitleSummary[]; page: number; totalPages: number; hasMore: boolean }
-
 function textOrNull(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value : null
 }
@@ -53,7 +51,7 @@ function summary(item: TmdbTitle, mediaType: MediaType): TitleSummary {
   }
 }
 
-function pageResult(items: TitleSummary[], page: number, totalPages: number): TitlePage {
+function pageResult(items: TitleSummary[], page: number, totalPages: number): TitlePageResponse {
   if (!Number.isInteger(totalPages) || totalPages < 0) {
     throw new ApiError(502, 'UPSTREAM_UNAVAILABLE', 'TMDB ส่งจำนวนหน้าที่ไม่ถูกต้อง')
   }
@@ -66,12 +64,12 @@ function validResults(result: TmdbPage): TmdbTitle[] {
   return result.results.filter(item => Number.isSafeInteger(item.id) && item.id > 0 && item.adult !== true)
 }
 
-export async function popularTitles(mediaType: MediaType, page: number): Promise<TitlePage> {
+export async function popularTitles(mediaType: MediaType, page: number): Promise<TitlePageResponse> {
   const result = await tmdbGet<TmdbPage>(`${mediaType}/popular`, { page: String(page) })
   return pageResult(validResults(result).map(item => summary(item, mediaType)), page, result.total_pages)
 }
 
-export async function animationTitles(page: number): Promise<TitlePage> {
+export async function animationTitles(page: number): Promise<TitlePageResponse> {
   const query = { page: String(page), with_genres: '16', sort_by: 'popularity.desc', include_adult: 'false' }
   const [movies, series] = await Promise.all([
     tmdbGet<TmdbPage>('discover/movie', query),
@@ -86,7 +84,7 @@ export async function animationTitles(page: number): Promise<TitlePage> {
   return pageResult(combined.map(({ item, mediaType }) => summary(item, mediaType)), page, Math.max(movies.total_pages, series.total_pages))
 }
 
-export async function searchTitles(query: string, page: number): Promise<TitlePage> {
+export async function searchTitles(query: string, page: number): Promise<TitlePageResponse> {
   const result = await tmdbGet<TmdbPage>('search/multi', { query, page: String(page), include_adult: 'false' })
   const titles = validResults(result)
     .filter((item): item is TmdbTitle & { media_type: MediaType } => item.media_type === 'movie' || item.media_type === 'tv')

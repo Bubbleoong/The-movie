@@ -1,4 +1,4 @@
-import type { TitlePageResponse } from "../api/titles";
+import type { TitlePageResponse } from "../types/media";
 import { TitleGrid } from "./TitleGrid";
 
 type Props = {

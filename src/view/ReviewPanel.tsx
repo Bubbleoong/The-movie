@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { FormEvent } from 'react'
+import type { SubmitEvent } from 'react'
 import { Link, useLocation } from 'react-router'
 import { ApiClientError } from '../api/client'
 import { currentUser } from '../api/auth'
@@ -58,7 +58,7 @@ export function ReviewPanel({ id }: { id: MediaId }) {
     return () => { active = false }
   }, [id.mediaType, id.tmdbId, userId, revision])
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     if (pending) return
     const text = body.trim()

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { TitlePageResponse } from "../api/titles";
+import type { TitlePageResponse } from "../types/media";
 import type { TitleSummary } from "../types/media";
 import { TitleCard } from "./TitleCard";
 

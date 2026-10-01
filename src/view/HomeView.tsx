@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { getAnimationTitles, getPopularTitles } from "../api/titles";
-import type { TitlePageResponse } from "../api/titles";
+import type { TitlePageResponse } from "../types/media";
 import { TitleShelf } from "../component/TitleShelf";
 import type { TitleSummary } from "../types/media";
 

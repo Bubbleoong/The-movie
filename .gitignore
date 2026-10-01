@@ -28,7 +28,6 @@ dist-ssr
 *.sw?
 
 # Test files and datasets (QA only, not published)
-scripts/automated-qa-test.mjs
 scripts/db-verify-01.mjs
 REVIEW-01_TEST_REPORT.md
 supabase/DB-01_VERIFICATION.md

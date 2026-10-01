@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import pg from 'pg'
-import { ApiError } from '../middleware/apiError.js'
+import { ApiError } from '../errors/ApiError.js'
 
 let pool: pg.Pool | null = null
 

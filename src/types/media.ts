@@ -36,6 +36,13 @@ export type TitleDetail = TitleSummary & {
   episodesCount: number | null
 }
 
+export type TitlePageResponse = {
+  data: TitleSummary[]
+  page: number
+  totalPages: number
+  hasMore: boolean
+}
+
 export type Favorite = MediaId & { createdAt: string }
 export type Review = MediaId & {
   id: string
