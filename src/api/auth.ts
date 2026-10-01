@@ -25,6 +25,6 @@ export async function requestPasswordReset(email: string): Promise<void> {
   await apiClient.post('/auth/recover', { email })
 }
 
-export async function completePasswordReset(tokenHash: string, password: string): Promise<void> {
-  await apiClient.post('/auth/reset-password', { tokenHash, password })
+export async function completePasswordReset(tokens: { tokenHash: string | null; accessToken: string | null }, password: string): Promise<void> {
+  await apiClient.post('/auth/reset-password', { ...tokens, password })
 }

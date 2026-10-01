@@ -29,7 +29,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       } else {
         const result = await signup(email, password);
         if (result.requiresEmailConfirmation) {
-          setMessage("สมัครสมาชิกแล้ว กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ");
+          setMessage("หากอีเมลนี้ยังไม่มีบัญชี ระบบจะส่งลิงก์ยืนยันให้ กรุณาตรวจกล่องจดหมาย หากเคยสมัครแล้วให้เข้าสู่ระบบหรือกดลืมรหัสผ่าน");
         } else {
           window.dispatchEvent(new Event("movie-auth-changed"));
           navigate(returnTo, { replace: true });
