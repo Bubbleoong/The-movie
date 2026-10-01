@@ -1,6 +1,6 @@
 # The Movie Web — Architecture และ Tickets
 
-สถานะ: **ARCH-01, SET-01, API-01, UI-01 ถึง UI-05, DB-01, AUTH-01, FAV-01, REVIEW-01 และ QA-01 เสร็จสมบูรณ์แล้ว; พร้อมสำหรับ RELEASE-01**  
+สถานะตรวจสอบ ณ 2026-10-01: **ARCH-01 ถึง DB-01, FAV-01 และ REVIEW-01 ผ่านการตรวจตาม ticket; AUTH-01 ยังต้องทดสอบอีเมลกู้คืนและขั้นตอนสมาชิกที่เหลือ; QA-01 และ RELEASE-01 ยังไม่ปิดงาน**
 ขอบเขต: เว็บข้อมูล Movie, Series และ Anime/Cartoon จาก TMDB; สมาชิกใช้ Supabase Auth เพื่อบันทึก Favorite และเขียนรีวิว ไม่มีการสตรีมหนัง
 
 ## 1. ข้อตกลงด้าน Architecture
@@ -73,11 +73,11 @@ Search ใน Navbar ไปยัง `/search?q=...` และแสดงผล
 | 7 | UI-04 | ค้นหาจาก Navbar | API-01, UI-01 | เสร็จแล้ว |
 | 8 | UI-05 | Detail view/card และ Trailer | API-01, UI-01 | เสร็จแล้ว |
 | 9 | DB-01 | Migration สำหรับ Favorite, Review, ผู้ดูแล และ Vault | ARCH-01 | เสร็จแล้ว |
-| 10 | AUTH-01 | สมัครสมาชิก Login Logout และตรวจ session | SET-01, DB-01 | เสร็จแล้ว |
-| 11 | FAV-01 | เพิ่ม/ลบ Favorite และแสดงสถานะที่บันทึก | AUTH-01, UI-05 | เสร็จแล้ว |
-| 12 | REVIEW-01 | เขียน แก้ไข ลบ และอ่านรีวิว | AUTH-01, UI-05 | เสร็จแล้ว |
-| 13 | QA-01 | ตรวจ API, route, สิทธิ์ และเส้นทางผู้ใช้ | UI-02 ถึง REVIEW-01 | เสร็จแล้ว |
-| 14 | RELEASE-01 | เอกสาร env, เครดิต TMDB และการรัน/deploy | QA-01 | เสร็จแล้ว |
+| 10 | AUTH-01 | สมัครสมาชิก Login Logout และตรวจ session | SET-01, DB-01 | โค้ดเสร็จ; ทดสอบจริงยังไม่ครบ |
+| 11 | FAV-01 | เพิ่ม/ลบ Favorite และแสดงสถานะที่บันทึก | AUTH-01, UI-05 | เสร็จแล้ว; ทดสอบผ่านเว็บจริง |
+| 12 | REVIEW-01 | เขียน แก้ไข ลบ และอ่านรีวิว | AUTH-01, UI-05 | เสร็จแล้ว; ทดสอบผ่านเว็บจริง |
+| 13 | QA-01 | ตรวจ API, route, สิทธิ์ และเส้นทางผู้ใช้ | UI-02 ถึง REVIEW-01 | ยังไม่ครบ |
+| 14 | RELEASE-01 | เอกสาร env, เครดิต TMDB และการรัน/deploy | QA-01 | เตรียมเอกสาร/โครง deploy แล้ว; ยังไม่ยืนยัน production |
 
 ### ARCH-01 — Contract ก่อนเขียนฟีเจอร์
 
@@ -97,7 +97,7 @@ Search ใน Navbar ไปยัง `/search?q=...` และแสดงผล
 
 ### API-01 — TMDB ผ่าน Server
 
-- [x] Server อ่าน TMDB key จาก environment ฝั่ง server เท่านั้น; key ไม่ปรากฏใน frontend bundle
+- [x] Server อ่าน TMDB key จาก Supabase Vault ฝั่ง server เท่านั้น; ไม่ส่ง key ให้ frontend
 - [x] มี endpoint สำหรับ popular movie, popular tv, animation รวม movie/tv, search, movie detail และ tv detail
 - [x] Detail endpoint ดึงข้อมูลนักแสดง/ทีมงานและ Trailer เพิ่ม โดยรองรับกรณีไม่มี Trailer
 - [x] ตรวจ media type, ID, query และ pagination; จัดการ timeout/error ด้วยรูปแบบ response เดียวกัน
@@ -152,15 +152,15 @@ Search ใน Navbar ไปยัง `/search?q=...` และแสดงผล
 - [x] แสดงข้อผิดพลาดและกรณีต้องยืนยันอีเมล; คนไม่ล็อกอินยังดูรายการ/รายละเอียดได้
 - [x] Login/Signup รองรับ `returnTo` สำหรับกลับสู่เรื่องเดิมเมื่อ Favorite/Review เริ่มใช้งาน
 - [x] เพิ่มหน้าและ API ขออีเมลกู้คืน/ตั้งรหัสผ่านใหม่ผ่าน Supabase Auth โดย server ตรวจ token และเปลี่ยนรหัสผ่าน
-- [x] ตั้งค่าอีเมล Reset Password และ Site URL ใน Supabase Dashboard แล้วทดสอบลิงก์จริงจากกล่องจดหมาย
-- [x] ทดลองสมัคร ยืนยันอีเมล ล็อกอิน refresh session และล็อกเอาต์ด้วยบัญชีจริง
+- [ ] ยืนยันค่า Reset Password/Site URL ใน Supabase Dashboard และทดสอบลิงก์จริงจากกล่องจดหมายจนตั้งรหัสใหม่สำเร็จ
+- [ ] ทดลองสมัคร ยืนยันอีเมล ล็อกอิน refresh session และล็อกเอาต์ด้วยบัญชีจริงให้ครบทุกขั้น (ยืนยันแล้วเฉพาะการล็อกอิน)
 
 ### FAV-01 — Favorite
 
 - [x] สมาชิกเพิ่ม/ยกเลิก Favorite ได้; server ใช้ identity ของผู้ใช้ที่ตรวจแล้ว
 - [x] เก็บ `(media_type, tmdb_id)` และแสดงสถานะ Favorite ที่ถูกต้องบน card/detail
 - [x] ผู้เยี่ยมชมที่กด Favorite ถูกพาไป Login; API ตรวจสิทธิ์, Origin, ID และใช้ insert แบบไม่เพิ่มแถวซ้ำ
-- [x] ทดสอบเพิ่ม/ลบ/กดซ้ำ/กลับมา Login ใหม่ด้วยบัญชีจริงผ่านหน้าเว็บ
+- [x] ทดสอบเพิ่ม/ลบ/กดซ้ำ/กลับมา Login ใหม่ด้วยบัญชีจริงผ่านหน้าเว็บ; ยืนยันสถานะหลังรีโหลดและหลัง Login ใหม่
 
 ### REVIEW-01 — คะแนนและรีวิวสมาชิก
 
@@ -168,20 +168,34 @@ Search ใน Navbar ไปยัง `/search?q=...` และแสดงผล
 - [x] เจ้าของแก้ไข/ลบรีวิวตัวเองได้; คนอื่นทำไม่ได้ด้วย RLS; ผู้ดูแลลบรีวิวอื่นได้ตามสิทธิ
 - [x] หน้า Detail แสดงรายการรีวิว จำนวน และคะแนนเฉลี่ยของสมาชิก แยกจากคะแนน TMDB
 - [x] ตรวจข้อความว่าง/ยาวเกิน, คะแนนนอกช่วง และผลลัพธ์เมื่อไม่มีรีวิว
-- [x] ทดสอบโพสต์/แก้/ลบผ่านเว็บด้วย session บัญชีจริงและตรวจข้อมูลหลังรีโหลด
+- [x] ทดสอบโพสต์/แก้/ลบผ่านเว็บด้วย session บัญชีจริงและตรวจข้อมูลหลังรีโหลด; ตรวจคะแนนเฉลี่ยและจำนวนรีวิว
 
 ### QA-01 — ตรวจการทำงานจริง
 
 - [x] ตรวจสอบ direct URL, เปลี่ยนหน้า, ค้นหา, รายละเอียด movie/tv และ Animation ที่รวมทั้ง movie และ tv
-- [x] ตรวจสอบสิทธิ์ข้ามบัญชี, ID ไม่ถูกต้อง, fallback เมื่อไม่มีโปสเตอร์/Trailer และระบบ error handling
-- [x] Build client/server ผ่าน และตรวจว่าคีย์ TMDB และ database secrets ไม่อยู่ใน frontend bundle
-- [x] ทดสอบ flow บัญชีจริง: guest → Login → Favorite/Review → Logout และกลับเข้าใช้งานอีกครั้ง
+- [ ] ตรวจสอบสิทธิ์ข้ามบัญชี, ID ไม่ถูกต้อง, fallback เมื่อไม่มีโปสเตอร์/Trailer และระบบ error handling ให้ครบ (ยืนยันแล้วบางส่วนจาก API/DB)
+- [ ] Build client/server ผ่านแล้ว; ยังต้องตรวจยืนยันว่า TMDB key และ database secrets ไม่อยู่ใน frontend bundle
+- [x] ทดสอบ flow บัญชีจริง: guest → Login → Favorite/Review → Logout และกลับเข้าใช้งานอีกครั้ง; ตรวจข้อมูลคงอยู่ก่อนลบ
 
 ### RELEASE-01 — คู่มือและเตรียมเผยแพร่
 
 - [x] ทำ `.env.example` ที่มีแต่ชื่อ key; อธิบายการตั้งค่าและคำสั่งรันโดยไม่เผยค่า secret
 - [x] แสดงเครดิตและข้อความอ้างอิง TMDB ใน UI ตามเงื่อนไขการใช้ข้อมูล
-- [x] ระบุโฮสต์ที่รัน server ได้ และตรวจ build/run ในสภาพแวดล้อม production
+- [ ] ระบุโฮสต์ที่รัน server ได้แล้ว; ยังต้องตรวจ run และ API/auth ในสภาพแวดล้อม production จริง
+
+## 5. ผลตรวจสถานะล่าสุด (2026-10-01)
+
+- `pnpm build` ผ่านทั้ง TypeScript client/server และ Vite; ยังไม่ใช่หลักฐานว่า deployment จริงทำงาน
+- `pnpm test` ไม่ผ่าน เพราะ `package.json` ชี้ไปที่ `scripts/automated-qa-test.mjs` แต่ไม่มีไฟล์นี้ใน workspace; README ที่อ้างว่า automated tests 13 รายการผ่านจึงยังไม่มีหลักฐานที่รันซ้ำได้
+- QA ผ่านหน้าเว็บที่ยืนยันแล้ว: เพิ่ม Favorite และคงสถานะหลังรีโหลด; โพสต์/แก้ Review และคงข้อมูลหลังรีโหลด. รีวิวทดสอบถูกลบแล้วและ Favorite ทดสอบถูกเก็บกวาดแล้ว
+- ก่อนปิด AUTH-01/FAV-01/REVIEW-01 ให้ทดสอบรายการที่ยังไม่ติ๊กด้วยบัญชีจริง แล้วบันทึกผลและวันที่ โดยไม่บันทึกรหัสผ่านหรือ token
+- ก่อนปิด QA-01 ให้เพิ่มชุดทดสอบที่เก็บใน repo และทำให้ `pnpm test` รันได้ หรือแก้ README/package script ให้ตรงกับวิธีทดสอบจริง
+- ก่อนปิด RELEASE-01 ให้ยืนยัน deployment จริง พร้อมทดสอบ route, API, cookie/session และ environment variables บนโฮสต์นั้น
+- ตรวจซ้ำ 2026-10-01: local `/api/health` และ guest `/api/auth/me` ตอบ 200; guest Favorite/Review write ตอบ 401, คะแนนผิดช่วงตอบ 400, Origin ผิดตอบ 403, ID ผิดตอบ 400, reset token ปลอมตอบ `RESET_LINK_INVALID`; หน้า reset แสดงข้อความลิงก์หมดอายุได้
+- พบและแก้การแปล Supabase Auth error: API ส่งชื่อข้อผิดพลาดใน `error_code`; ทดสอบ Login ด้วยบัญชีสมมติและรหัสผิดแล้วได้ `INVALID_CREDENTIALS` พร้อมข้อความที่ตรงกรณี
+- การทดสอบ AUTH-01 ด้วยบัญชีจริงยืนยัน Login, Logout และ `returnTo` แล้ว; ยังไม่ได้ทดสอบอีเมลกู้คืน, signup/confirmation และ refresh token หลังหมดอายุ
+- ทดสอบผ่านเว็บจริง 2026-10-01 บน movie/550: Login → เพิ่ม Favorite → รีโหลด → โพสต์ Review 8/10 → แก้เป็น 9/10 → Logout → Login ใหม่พร้อม `returnTo` → Favorite/Review ยังอยู่ → ยกเลิก Favorite และลบ Review ผ่านปุ่มยืนยัน → รีโหลดแล้วทั้งสองรายการไม่กลับมา. ข้อมูลทดสอบถูกเก็บกวาดแล้ว
+- ตรวจอีเมลกู้คืนจริง 2026-10-01: แพ็กเกจ Supabase Free แก้ Email Template ไม่ได้หากไม่ตั้ง Custom SMTP; จึงปรับหน้า Reset ให้รองรับลิงก์เริ่มต้น `/auth/v1/verify` ที่ส่ง access token ใน URL fragment ด้วย โดยลบ fragment ทันทีและส่ง token ไป server เฉพาะคำขอเปลี่ยนรหัสผ่าน. ทดสอบฟอร์มด้วย token จำลองและตรวจ error จาก token ปลอมแล้ว; ยังต้องขออีเมลใหม่และให้ผู้ใช้ตั้งรหัสจริงเพื่อปิด AUTH-01
 
 ## กติกาใช้ AI Agent กับ Tickets นี้
 

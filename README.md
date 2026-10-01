@@ -26,17 +26,13 @@ cp .env.example .env
 pnpm install
 ```
 
-เปิดสอง terminal ที่ root ของโปรเจกต์:
-
-```bash
-pnpm dev:server
-```
+เปิด terminal ที่ root ของโปรเจกต์แล้วรัน:
 
 ```bash
 pnpm dev
 ```
 
-เปิด `http://localhost:5173`. `pnpm dev:server` ใช้ nodemon เฝ้าไฟล์ใน `server/` และเริ่ม server ผ่าน tsx. Vite ส่งคำขอ `/api/*` ไป server ที่ `http://localhost:3001`. ทดสอบ server ได้ที่ `http://localhost:3001/api/health`. รัน automated tests ได้ด้วยคำสั่ง `pnpm test`.
+คำสั่งนี้เปิดทั้ง Vite และ API server ในเครื่อง. เปิด `http://localhost:5173`; Vite ส่งคำขอ `/api/*` ไป server ที่ `http://localhost:3001`. หากต้องการแยกรันสอง terminal ใช้ `pnpm dev:web` กับ `pnpm dev:server`. ทดสอบ server ได้ที่ `http://localhost:3001/api/health`. คำสั่ง `pnpm test` ยังใช้ไม่ได้จนกว่าจะเพิ่มไฟล์ทดสอบที่อ้างใน `package.json`.
 
 Server อ่าน TMDB API key จาก Supabase Vault ชื่อ `tmdb_api_key`. `.env` ต้องมี `DATABASE_URL`, `VITE_SUPABASE_URL` และ `VITE_SUPABASE_PUBLISHABLE_KEY`; ไม่มี `API_KEY` แล้ว. การเชื่อม PostgreSQL ตรวจ TLS ด้วย CA ที่ `supabase/ca.crt`. อย่าส่ง `DATABASE_URL` เข้า frontend หรือ commit `.env`. ใช้ endpoints:
 
@@ -59,13 +55,15 @@ API ส่งรูปแบบ `{ data, page, totalPages, hasMore }` สำห�
 
 ### ตั้งค่าอีเมลลืมรหัสผ่าน
 
-ใน Supabase Dashboard → Authentication → URL Configuration ตั้ง **Site URL** เป็น URL ของเว็บ เช่น `http://localhost:5173` ระหว่างพัฒนา และเพิ่ม URL นี้ในรายการที่อนุญาต. เมื่อ deploy ให้เปลี่ยนเป็น URL เว็บจริง จากนั้นไปที่ Authentication → Email Templates → **Reset Password** แล้วเปลี่ยนเฉพาะลิงก์ของปุ่มเป็น:
+ใน Supabase Dashboard → Authentication → URL Configuration ตั้ง **Site URL** เป็น URL ของเว็บจริง และเพิ่ม `http://localhost:5173/reset-password` กับ URL production ของหน้า `/reset-password` ใน Redirect URLs. ฝั่ง server ส่ง `redirect_to` เป็น URL ของหน้า reset ตาม Origin ของเว็บที่เรียกใช้งาน จึงใช้ทั้ง dev และ production ได้. **แพ็กเกจ Free ใช้อีเมลเทมเพลตเริ่มต้นได้เลย**; หน้า Reset รองรับ session token ที่ Supabase ส่งกลับใน URL fragment และลบ fragment ออกจากแถบ URL ทันที. Browser ส่ง access token ให้ server เฉพาะคำขอตั้งรหัสผ่านใหม่; server ติดต่อ Supabase Auth และออกจาก recovery session หลังสำเร็จ. ไม่เก็บ token ใน localStorage หรือ cookie ของ browser.
+
+หากใช้ Custom SMTP หรือแพ็กเกจที่แก้ Email Template ได้ สามารถเปลี่ยนลิงก์ของปุ่ม **Reset Password** เป็นรูปแบบ `token_hash` เพื่อให้ browser ไม่ได้รับ session token:
 
 ```html
-<a href="{{ .SiteURL }}/reset-password?token_hash={{ .TokenHash }}&amp;type=recovery">ตั้งรหัสผ่านใหม่</a>
+<a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&amp;type=recovery">ตั้งรหัสผ่านใหม่</a>
 ```
 
-หน้า `/forgot-password` เรียก server เพื่อให้ Supabase ส่งอีเมล. เมื่อผู้ใช้กดลิงก์ หน้า `/reset-password` รับ `token_hash` แล้วส่งให้ server ตรวจและเปลี่ยนรหัสผ่านด้วย Supabase Auth; token และ session ไม่ถูกส่งกลับเป็น JSON ให้ browser. หลังสำเร็จ ผู้ใช้เข้าสู่ระบบใหม่. ต้องทดสอบด้วยอีเมลจริงหลังตั้งค่า template; บริการส่งอีเมลเริ่มต้นของ Supabase อาจมีข้อจำกัดการส่งและควรตั้ง SMTP ก่อนใช้งานจริง.
+หน้า `/forgot-password` เรียก server เพื่อให้ Supabase ส่งอีเมล. หลังตั้งรหัสใหม่ ผู้ใช้เข้าสู่ระบบอีกครั้ง. ต้องทดสอบด้วยอีเมลจริง; บริการส่งอีเมลเริ่มต้นของ Supabase อาจมีข้อจำกัดการส่งและควรตั้ง SMTP ก่อนใช้งานจริง. อย่าส่ง URL ที่มี token ให้ผู้อื่นหรือวางใน issue/chat.
 
 ## Build และรันแบบ production
 
