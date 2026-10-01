@@ -12,6 +12,7 @@ export class ApiError extends Error {
 
 export const apiErrorHandler: ErrorRequestHandler = (error: unknown, _request, response, _next) => {
   if (error instanceof ApiError) {
+    if (error.status >= 500) console.error(`API error ${error.status} ${error.code}:`, error.message)
     response.status(error.status).json({ error: { code: error.code, message: error.message } })
     return
   }

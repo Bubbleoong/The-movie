@@ -18,6 +18,7 @@ export async function getTmdbApiKey(): Promise<string> {
     return key
   } catch (error) {
     if (error instanceof ApiError) throw error
+    console.error('Reading TMDB API key from Supabase Vault failed:', error)
     throw new ApiError(503, 'TMDB_NOT_CONFIGURED', 'อ่าน TMDB API key จาก Supabase Vault ไม่ได้')
   }
 }
